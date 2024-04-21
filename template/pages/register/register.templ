@@ -1,0 +1,57 @@
+package register
+
+import "dev.chaiyapluek.cloud.final.frontend/template/pages"
+import "dev.chaiyapluek.cloud.final.frontend/template/component/header"
+import "dev.chaiyapluek.cloud.final.frontend/template/component/button"
+
+templ RegisterCode(attemptId string, email string){
+<form
+    hx-target-error="#error-message"
+    hx-post="/register"
+    hx-on::before-request="loadding(event)"
+    class="mt-2 w-5/6 pb-16 flex flex-col justify-center"
+>
+    <label
+        x-data="timer(120)"
+        class="text-sm"
+    >Enter register code sent to the email in <span x-text="current"></span> seconds</label>
+    <input class="h-10 p-2 text-lg border border-black border-solid rounded" 
+        type="number" max="999999" required name="code" id="code" inputmode="numeric" placeholder="Enter code..."/>
+    <input type="hidden" name="attemptId" value={attemptId}/>
+    <input type="hidden" name="email" value={email}/>
+    <div id="error-message"></div>
+    @button.NextButton("Register", false)
+</form>
+}
+
+templ Register(){
+    @pages.Layout(){
+        @header.Header()
+        <div class="h-[60%] flex flex-col-reverse">
+            <div 
+                hx-ext="response-targets"
+                class="flex flex-col justify-center items-center">
+                <h1 class="text-2xl text-center font-medium">Register</h1>
+                <form 
+                    hx-post="/register-attempt"
+                    hx-swap="outerHTML"
+                    hx-target-error="#error-message"
+                    hx-on::before-request="loadding(event)"
+                    class="mt-2 w-5/6 flex flex-col justify-center">
+                    <input class="h-10 p-2 text-lg border border-black border-solid rounded" 
+                        type="text" required name="display-name" placeholder="Enter you display name..."/>
+                    <input class="h-10 p-2 mt-2 text-lg border border-black border-solid rounded" 
+                        type="email" required name="email" placeholder="Enter you email..."/>
+                    <input class="h-10 p-2 mt-2 text-lg border border-black border-solid rounded" 
+                        type="password" required id="password" name="password" placeholder="Enter you password..."/>
+                    <input class="h-10 p-2 mt-2 text-lg border border-black border-solid rounded" 
+                        type="password" required id="confirm-password" name="confirm-password" placeholder="Confirm password..."
+                    />
+                    <div id="error-message"></div>
+                    @button.NextButton("Continue", false)
+                    <span class="mt-2 text-sm text-black">Already have an account? <a class="text-blue-700" href="/login">login</a></span>
+                </form>
+            </div>
+        </div>
+    }
+}

@@ -1,0 +1,14 @@
+package button
+
+import "dev.chaiyapluek.cloud.final.frontend/template/component/spinner"
+
+templ NextButton(text string, oob bool){
+<button class="load-button w-full text-white bg-blue-700 font-medium rounded-lg text-md px-5 py-2.5 text-center mt-2 me-2"
+    if oob {
+        hx-swap-oob="innerHTML:button.load-button"
+    }
+>
+    @spinner.Spinner()
+    <span>{text}</span>
+</button>
+}

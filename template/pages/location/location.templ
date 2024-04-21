@@ -1,0 +1,40 @@
+package location
+
+import "dev.chaiyapluek.cloud.final.frontend/template/pages"
+import "dev.chaiyapluek.cloud.final.frontend/template/component/header"
+
+type LocationProps struct {
+    Id string
+    Name string
+}
+
+templ LocationListCard(location *LocationProps){
+    <a
+        href={templ.SafeURL("/location/"+location.Id)}
+        class="flex flex-row justify-between pl-8 pr-4 py-2 border-box border-solid border-black border-b-[1px] hover:bg-gray-100 cursor-pointer"
+    >
+        <div>
+            <div>{location.Name}</div>
+            <div>
+                ฿ 0<span class="line-through mx-1 text-gray-400 text-sm">10</span> • 15นาที
+            </div>
+        </div>
+        <div>
+            <div class="text-4xl font-medium"> > </div>
+        </div>
+    </a>
+}
+
+templ LocationList(locations []*LocationProps){
+    @pages.Layout(){
+        @header.Header()
+        <div class="flex flex-col my-2 pt-16">
+            <div class="border-box px-6 py-8 border-solid border-black border-b-[1px]">
+                <h1 class="text-xl font-bold">เลือกสาขา</h1>
+            </div>
+            for _, l := range locations {
+                @LocationListCard(l)
+            }
+        </div>    
+    }
+}

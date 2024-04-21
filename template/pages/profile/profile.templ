@@ -1,0 +1,30 @@
+package profile
+
+import "dev.chaiyapluek.cloud.final.frontend/template/pages"
+import "dev.chaiyapluek.cloud.final.frontend/template/component/header"
+import "dev.chaiyapluek.cloud.final.frontend/template/component/footer"
+
+templ Profile(isLogin bool, displayName string, locationId string){
+    @pages.Layout(){
+        @header.Header()
+        <div class="min-h-full flex flex-col bg-white pt-16 pb-24">
+            <div class="flex flex-col mt-16 px-8">
+                if isLogin{
+                    <h1 class="text-xl font-bold mx-auto">Welcome, {displayName}</h1>
+                    <a 
+                        href="/logout"
+                        class="w-8/12 text-white bg-blue-700 font-medium rounded-lg text-md px-5 py-2.5 text-center mt-2 mx-auto">
+                        Logout
+                    </a>
+                } else {
+                    <a 
+                        href="/login"
+                        class="w-8/12 text-white bg-blue-700 font-medium rounded-lg text-md px-5 py-2.5 text-center mt-2 mx-auto">
+                        Login
+                    </a>
+                }
+            </div>
+        </div>
+        @footer.IconFooter(locationId)
+    }
+}

@@ -1,0 +1,134 @@
+package cart
+
+import "dev.chaiyapluek.cloud.final.frontend/template/pages"
+import "dev.chaiyapluek.cloud.final.frontend/template/component/header"
+import "fmt"
+import "dev.chaiyapluek.cloud.final.frontend/template/component/spinner"
+
+type CartItemStep struct {
+	Step    string
+	Options []string
+}
+
+type CartItem struct {
+	ItemId     int
+	MenuId     string
+	MenuName   string
+	TotalPrice int
+	Quantity   int
+	Steps      []*CartItemStep
+}
+
+type CartProps struct {
+	CartId       string
+	LocationId   string
+	LocationName string
+	TotalPrice   int
+	CartItems    []*CartItem
+}
+
+templ CartItemCard(props *CartItem, cartId string) {
+	<div id={ fmt.Sprintf("item-%d", props.ItemId) } class="flex justify-between border-b border-gray-200 py-4">
+		<div class="flex flex-row">
+			<button
+				hx-delete={ fmt.Sprintf("/cart/%s/items/%d", cartId, props.ItemId) }
+				hx-swap="delete"
+				hx-target={ fmt.Sprintf("#item-%d", props.ItemId) }
+				type="button"
+				class="w-6 h-6"
+			>
+				<svg viewBox="-3 0 32 32" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:sketch="http://www.bohemiancoding.com/sketch/ns" fill="#000000"><g id="SVGRepo_bgCarrier" stroke-width="0"></g><g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g><g id="SVGRepo_iconCarrier"><title>trash</title> <desc>Created with Sketch Beta.</desc> <defs></defs> <g id="Page-1" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd" sketch:type="MSPage"><g id="Icon-Set-Filled" sketch:type="MSLayerGroup" transform="translate(-261.000000, -205.000000)" fill="#ff0000"><path d="M268,220 C268,219.448 268.448,219 269,219 C269.552,219 270,219.448 270,220 L270,232 C270,232.553 269.552,233 269,233 C268.448,233 268,232.553 268,232 L268,220 L268,220 Z M273,220 C273,219.448 273.448,219 274,219 C274.552,219 275,219.448 275,220 L275,232 C275,232.553 274.552,233 274,233 C273.448,233 273,232.553 273,232 L273,220 L273,220 Z M278,220 C278,219.448 278.448,219 279,219 C279.552,219 280,219.448 280,220 L280,232 C280,232.553 279.552,233 279,233 C278.448,233 278,232.553 278,232 L278,220 L278,220 Z M263,233 C263,235.209 264.791,237 267,237 L281,237 C283.209,237 285,235.209 285,233 L285,217 L263,217 L263,233 L263,233 Z M277,209 L271,209 L271,208 C271,207.447 271.448,207 272,207 L276,207 C276.552,207 277,207.447 277,208 L277,209 L277,209 Z M285,209 L279,209 L279,207 C279,205.896 278.104,205 277,205 L271,205 C269.896,205 269,205.896 269,207 L269,209 L263,209 C261.896,209 261,209.896 261,211 L261,213 C261,214.104 261.895,214.999 262.999,215 L285.002,215 C286.105,214.999 287,214.104 287,213 L287,211 C287,209.896 286.104,209 285,209 L285,209 Z" id="trash" sketch:type="MSShapeGroup"></path> </g> </g> </g></svg>
+			</button>
+			<div class="flex flex-col items-center">
+				<div class="ml-2">
+					<span class="text-md font-medium">{ props.MenuName }</span>
+					<span class="text-gray-500 text-xs">x{ fmt.Sprintf("%d", props.Quantity) }</span>
+				</div>
+				<div>
+					for _, step := range props.Steps {
+						for _, option := range step.Options {
+							<p class="text-gray-500 text-xs">{ option }</p>
+						}
+					}
+				</div>
+			</div>
+		</div>
+		<div class="flex items center">
+			<p class="text-md font-medium">{ fmt.Sprintf("%d", props.Quantity * props.TotalPrice) }</p>
+		</div>
+	</div>
+}
+
+templ Price(total, discount, net int) {
+	<div 
+        id="price-section"
+        hx-swap-oob="outerHTML:#price-section"
+        class="flex flex-col mt-4 border-b border-gray-200">
+		<div class="flex justify-between">
+			<h1 class="text-md font-medium">ราคารวม</h1>
+			<div>
+				<p class="text-md font-medium">{ fmt.Sprintf("%d", total) }</p>
+			</div>
+		</div>
+		<div class="flex justify-between">
+			<h1 class="text-md font-medium">ส่วนลด</h1>
+			<div>
+				<p class="text-md font-medium">{ fmt.Sprintf("%d", discount) }</p>
+			</div>
+		</div>
+		<div class="flex justify-between">
+			<h1 class="text-md font-medium">ราคาสุทธิ</h1>
+			<div>
+				<p class="text-md font-medium">{ fmt.Sprintf("%d", net) }</p>
+			</div>
+		</div>
+	</div>
+}
+
+templ CheckoutResponse(){
+    <div class="h-[50%] flex flex-col bg-white pt-16 pb-8 px-8">
+        <div class="h-full flex flex-col-reverse items-center mt-16">
+            <div class="w-full flex flex-col justify-center content-center">
+                <h1 class="text-center text-2xl font-semibold">Thank you for your order!</h1>
+                <p class="text-center text-md font-medium">Your order has been placed successfully.</p>
+                <p class="text-center text-md font-medium">The receipt will be sent to your email shortly.</p>
+                <a href="/location" class="mt-2 block w-full h-10 bg-lime-500 text-white rounded-md font-bold text-center pt-2">
+                    Go back
+                </a>
+            </div>
+        </div>
+    </div>
+}
+
+templ Cart(props CartProps) {
+	@pages.Layout() {
+		@header.Header()
+		<div class="min-h-full flex flex-col bg-white pt-16 pb-8 px-8">
+			<h1 class="mt-6 text-2xl font-semibold">Order summary</h1>
+			<h2 class="text-lg font-medium text-black">สาขา { props.LocationName }</h2>
+			<form
+                hx-post="/checkout"
+                hx-target="closest div"
+                hx-swap="outerHTML"
+                hx-on::before-request="loadding(event)"
+            >
+				<div class="mt-2">
+					<p class="text-black text-md">ที่อยู่จัดส่ง</p>
+					<textarea name="address" required class="w-full h-24 border border-gray-200 rounded-md p-2" placeholder="กรุณากรอกที่อยู่จัดส่ง"></textarea>
+				</div>
+                <input type="hidden" name="cartId" value={ props.CartId } />
+				<div class="mt-4">
+					<p class="text-black text-md">รายการที่สั่ง</p>
+				</div>
+				for _, item := range props.CartItems {
+					@CartItemCard(item, props.CartId)
+				}
+                @Price(props.TotalPrice, props.TotalPrice, 0)
+				<div class="mt-8">
+					<button class="load-button w-full bg-lime-500 text-white font-semibold rounded-md py-2">Submit</button>
+                    @spinner.Spinner()
+				</div>
+			</form>
+		</div>
+	}
+}

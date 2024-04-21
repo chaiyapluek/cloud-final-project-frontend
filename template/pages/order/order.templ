@@ -1,0 +1,247 @@
+package order
+
+import "fmt"
+
+type Option struct {
+	Name   string
+	Value  string
+	Price  int
+	Select bool
+}
+
+type Step struct {
+	Name        string
+	FormName    string
+	Description string
+	Type        string
+	Required    bool
+	Min         int
+	Max         int
+	Items       []*Option
+}
+
+type OrderProps struct {
+	MenuName        string
+	MenuDescription string
+	MenuPrice       int
+	TotalPrice      int
+	MenuImage       string
+	MenuId          string
+	LocationId      string
+	Complete        bool
+	Quantity        int
+	Steps           []*Step
+}
+
+templ RadioGroup(formName string, items []*Option) {
+	<div class="mt-4">
+		for itemIdx, item := range items {
+			<div class="flex flex-row space-x-2 w-full">
+				<input
+					type="radio"
+					id={ fmt.Sprintf("%s-%d", formName, itemIdx) }
+					name={ formName }
+					value={ item.Value }
+					if item.Select {
+						checked
+					}
+				/>
+				<label for={ fmt.Sprintf("%s-%d", formName, itemIdx) } class="w-4/5 grow flex flex-row justify-between items-center">
+					<span class="text-sm grow">{ item.Name }</span>
+					if item.Price > 0 {
+						<span class="text-sm">+{ fmt.Sprintf("%d", item.Price) }</span>
+					}
+				</label>
+			</div>
+			if itemIdx != len(items) - 1 {
+				<hr class="my-2"/>
+			}
+		}
+	</div>
+}
+
+templ CheckboxGroup(formName string, items []*Option) {
+	<div class="mt-4">
+		for itemIdx, item := range items {
+			<div class="flex flex-row space-x-2 w-full">
+				<input
+					type="checkbox"
+					id={ fmt.Sprintf("%s-%d", formName, itemIdx) }
+					name={ formName }
+					value={ item.Value }
+					if item.Select {
+						checked
+					}
+				/>
+				<label for={ fmt.Sprintf("%s-%d", formName, itemIdx) } class="w-4/5 grow flex flex-row justify-between items-center">
+					<span class="text-sm grow">{ item.Name }</span>
+					if item.Price > 0 {
+						<span class="text-sm">+{ fmt.Sprintf("%d", item.Price) }</span>
+					}
+				</label>
+			</div>
+			if itemIdx != len(items) - 1 {
+				<hr class="my-2"/>
+			}
+		}
+	</div>
+}
+
+templ Order(props OrderProps, isLogin bool) {
+	<div class="w-full pt-16">
+		<div class="relative">
+			<img class="w-full" src={ templ.EscapeString(props.MenuImage) }/>
+			<svg
+				hx-on:click="document.getElementById('item-modal').classList.add('hidden')"
+				class="w-8 h-8 absolute top-2 left-2 m-2"
+				viewBox="0 0 32 32"
+				version="1.1"
+				xmlns="http://www.w3.org/2000/svg"
+				xmlns:xlink="http://www.w3.org/1999/xlink"
+				xmlns:sketch="http://www.bohemiancoding.com/sketch/ns"
+			>
+				<g id="Page-1" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd" sketch:type="MSPage">
+					<g id="Icon-Set" sketch:type="MSLayerGroup" transform="translate(-568.000000, -1087.000000)" fill="#000000">
+						<path d="M584,1117 C576.268,1117 570,1110.73 570,1103 C570,1095.27 576.268,1089 584,1089 C591.732,1089 598,1095.27 598,1103 C598,1110.73 591.732,1117 584,1117 L584,1117 Z M584,1087 C575.163,1087 568,1094.16 568,1103 C568,1111.84 575.163,1119 584,1119 C592.837,1119 600,1111.84 600,1103 C600,1094.16 592.837,1087 584,1087 L584,1087 Z M589.717,1097.28 C589.323,1096.89 588.686,1096.89 588.292,1097.28 L583.994,1101.58 L579.758,1097.34 C579.367,1096.95 578.733,1096.95 578.344,1097.34 C577.953,1097.73 577.953,1098.37 578.344,1098.76 L582.58,1102.99 L578.314,1107.26 C577.921,1107.65 577.921,1108.29 578.314,1108.69 C578.708,1109.08 579.346,1109.08 579.74,1108.69 L584.006,1104.42 L588.242,1108.66 C588.633,1109.05 589.267,1109.05 589.657,1108.66 C590.048,1108.27 590.048,1107.63 589.657,1107.24 L585.42,1103.01 L589.717,1098.71 C590.11,1098.31 590.11,1097.68 589.717,1097.28 L589.717,1097.28 Z" id="cross-circle" sketch:type="MSShapeGroup"></path>
+					</g>
+				</g>
+			</svg>
+		</div>
+		<div class="px-6 box-border">
+			<div class="flex flex-row content-center mt-4 space-x-4 bg-white">
+				<span class="grow text-xl font-semibold">{ props.MenuName }</span>
+				<span class="font-semibold text-xl">฿{ fmt.Sprintf("%d", props.MenuPrice) }</span>
+			</div>
+			<div class="text-sm text-gray-400">{ props.MenuDescription }</div>
+		</div>
+		<form
+			hx-post="/order"
+		>
+			for _, v := range props.Steps {
+				<hr class="mt-4"/>
+				<div
+					hx-put="/order"
+					hx-trigger="change"
+					hx-target="#submit-button"
+					hx-swap="outerHTML"
+					hx-on::before-request="loadding(event)"
+					class="mt-4 px-6 box-border"
+				>
+					<div>
+						<span class="text-md font-medium">{ v.Name }</span>
+						<span class="text-xs text-gray-400">{ v.Description }</span>
+					</div>
+					if v.Type == "radio" {
+						@RadioGroup(v.FormName, v.Items)
+					} else if v.Type == "checkbox" {
+						@CheckboxGroup(v.FormName, v.Items)
+					}
+				</div>
+			}
+			<hr class="mt-4"/>
+			<div
+				x-data="{ quantity: 1 }"
+				class="mt-8 px-6 box-border w-full"
+			>
+				<div class="flex flex-row space-x-2 w-full justify-center">
+					<button
+						hx-trigger="click"
+						hx-put="/order"
+						hx-target="#submit-button"
+						hx-swap="outerHTML"
+						hx-on::before-request="loadding(event)"
+						type="button"
+						@click="quantity = Math.max(0, quantity - 1)"
+						class="h-8 w-8 text-green rounded-md border border-solid border-black"
+					>
+						-
+					</button>
+					<input
+						type="number"
+						name="quantity"
+						x-model="quantity"
+						class="w-16 h-8 text-center"
+					/>
+					<button
+						hx-trigger="click"
+						hx-put="/order"
+						hx-target="#submit-button"
+						hx-swap="outerHTML"
+						hx-on::before-request="loadding(event)"
+						type="button"
+						@click="quantity = quantity + 1"
+						class="h-8 w-8 text-green rounded-md border border-solid border-black"
+					>
+						+
+					</button>
+				</div>
+			</div>
+			<input type="hidden" name="menu_id" value={ props.MenuId }/>
+			<input type="hidden" name="location_id" value={ props.LocationId }/>
+			@OrderFooter(props.TotalPrice, props.Complete, isLogin)
+		</form>
+	</div>
+}
+
+templ IncompleteButton(price int) {
+	<button
+		id="submit-button"
+		class="load-button h-10 bg-gray-400 text-white rounded-md"
+		type="submit"
+		disabled
+	>
+		<span>Add to cart - { fmt.Sprintf("%d", price) } </span>
+	</button>
+}
+
+templ CompleteButton(price int) {
+	<button
+		id="submit-button"
+		class="load-button h-10 bg-lime-500 text-white rounded-md"
+		type="submit"
+	>
+		<span>Add to cart - { fmt.Sprintf("%d", price) } </span>
+	</button>
+}
+
+templ BackButton() {
+	<button
+		id="submit-button"
+		class="load-button h-10 bg-lime-500 text-white rounded-md"
+		type="button"
+		hx-on:click="document.getElementById('item-modal').classList.add('hidden')"
+	>
+		<span>Back </span>
+	</button>
+}
+
+templ PleaseLoginButton() {
+	<button
+		id="submit-button"
+		class="h-10 bg-gray-400 text-white rounded-md"
+		type="button"
+	>
+		<a
+			id="submit-button"
+			href="/login"
+		>
+			<span>Please <span class="text-blue-700 underline">login</span> to add item to cart </span>
+		</a>
+	</button>
+}
+
+templ OrderFooter(price int, complete bool, isLogin bool) {
+	<footer class="h-16 fixed bottom-0 left-0 right-0 bg-white border-t-2 border-solid border-black">
+		<div class="px-8 py-2 flex flex-col justify-center content-center">
+			if isLogin {
+				if complete {
+					@CompleteButton(price)
+				} else {
+					@IncompleteButton(price)
+				}
+			} else {
+				@PleaseLoginButton()
+			}
+		</div>
+	</footer>
+}
