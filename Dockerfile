@@ -13,6 +13,7 @@ RUN go mod download
 # Copy the source code
 COPY ./src ./src
 COPY ./template ./template
+COPY ./static ./static
 
 # Build the application
 RUN go build -o server ./src/cmd/main.go
@@ -25,6 +26,7 @@ WORKDIR /app
 
 # Copy execute file
 COPY --from=base /app/server ./
+COPY --from=base /app/static ./static
 
 # Set ENV to production
 ENV GO_ENV production
