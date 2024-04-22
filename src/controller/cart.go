@@ -45,7 +45,7 @@ func (c *cartController) GetCartPage(e echo.Context) error {
 		})
 	}
 
-	return cart.Cart(*cartProps).Render(e.Request().Context(), e.Response().Writer)
+	return cart.Cart(*cartProps, len(cartProps.CartItems) > 0).Render(e.Request().Context(), e.Response().Writer)
 }
 
 func (c *cartController) DeleteCartItem(e echo.Context) error {

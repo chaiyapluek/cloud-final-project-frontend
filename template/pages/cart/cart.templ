@@ -100,7 +100,7 @@ templ CheckoutResponse(){
     </div>
 }
 
-templ Cart(props CartProps) {
+templ Cart(props CartProps, submittable bool) {
 	@pages.Layout() {
 		@header.Header()
 		<div class="min-h-full flex flex-col bg-white pt-16 pb-8 px-8">
@@ -124,10 +124,12 @@ templ Cart(props CartProps) {
 					@CartItemCard(item, props.CartId)
 				}
                 @Price(props.TotalPrice, props.TotalPrice, 0)
-				<div class="mt-8">
-					<button class="load-button w-full bg-lime-500 text-white font-semibold rounded-md py-2">Submit</button>
-                    @spinner.Spinner()
-				</div>
+				if submittable {
+					<div class="mt-8">
+						<button class="load-button w-full bg-lime-500 text-white font-semibold rounded-md py-2">Submit</button>
+						@spinner.Spinner()
+					</div>
+				}
 			</form>
 		</div>
 	}

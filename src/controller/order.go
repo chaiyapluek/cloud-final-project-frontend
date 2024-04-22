@@ -179,7 +179,7 @@ func (c *orderController) HandleOrderUpdate(e echo.Context) error {
 	isComplete := true
 	for _, g := range o.CurrentMenu.Steps {
 		formVals, ok := e.Request().Form[g.FormName]
-		if !ok && g.Required {
+		if !ok && g.Required && g.Min > 0 {
 			isComplete = false
 			break
 		}
