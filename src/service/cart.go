@@ -11,7 +11,7 @@ import (
 type CartService interface {
 	GetUserCart(userId, locationId string) (*cart.CartProps, error)
 	AddCartItem(userId, locationId string, item *entity.AddCartItemRequest) (*entity.AddCartItem, error)
-	DeleteCartItem(cartId string, itemId int) (int, error)
+	DeleteCartItem(cartId string, itemId int) (int, int, error)
 	Checkout(cartId, userId, address string) error
 }
 
@@ -78,13 +78,13 @@ func (s *cartService) AddCartItem(userId, locationId string, item *entity.AddCar
 	return resp, nil
 }
 
-func (s *cartService) DeleteCartItem(cartId string, itemId int) (int, error) {
+func (s *cartService) DeleteCartItem(cartId string, itemId int) (int, int, error) {
 	resp, err := s.cartRepo.DeleteCartItem(cartId, itemId)
 	if err != nil {
-		return 0, err
+		return 0, 0, err
 	}
 
-	return resp.TotalPrice, nil
+	return resp.TotalPrice, resp.TotalItem, nil
 }
 
 func (s *cartService) Checkout(cartId, userId, address string) error {

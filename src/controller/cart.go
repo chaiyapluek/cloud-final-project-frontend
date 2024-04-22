@@ -1,6 +1,7 @@
 package controller
 
 import (
+	"bytes"
 	"log"
 	"net/http"
 	"sort"
@@ -62,12 +63,17 @@ func (c *cartController) DeleteCartItem(e echo.Context) error {
 		return e.String(http.StatusBadRequest, "Invalid item id")
 	}
 
-	totalPrice, err := c.cartService.DeleteCartItem(cartId, itemIdInt)
+	totalPrice, totalItem, err := c.cartService.DeleteCartItem(cartId, itemIdInt)
 	if err != nil {
 		return e.String(http.StatusBadRequest, "Error")
 	}
 
-	return cart.Price(totalPrice, totalPrice, 0).Render(e.Request().Context(), e.Response().Writer)
+	priceWriter := bytes.NewBufferString("")
+	cart.Price(totalPrice, totalPrice, totalItem).Render(e.Request().Context(), priceWriter)
+	buttonWriter := bytes.NewBufferString("")
+	cart.SubmitButton(totalItem > 0).Render(e.Request().Context(), buttonWriter)
+
+	return e.HTML(http.StatusOK, priceWriter.String()+buttonWriter.String())
 }
 
 type CheckoutRequest struct {
