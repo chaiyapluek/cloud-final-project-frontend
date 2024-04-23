@@ -1,8 +1,8 @@
-function loadding(event) {
+function loadding(event, text="Loading...") {
     var buttonText = document.querySelector(".load-button span");
     if (buttonText) {
         buttonText.setAttribute("disabled", "disabled");
-        buttonText.innerText = "Loading...";
+        buttonText.innerText = text;
         var buttonSpinner = document.querySelector("svg");
         if (buttonSpinner) {
             buttonSpinner.classList.remove("hidden");

@@ -2,7 +2,6 @@ package controller
 
 import (
 	"bytes"
-	"log"
 	"net/http"
 	"sort"
 	"strconv"
@@ -57,7 +56,6 @@ func (c *cartController) DeleteCartItem(e echo.Context) error {
 
 	cartId := e.Param("cartId")
 	itemId := e.Param("itemId")
-	log.Println("delete cart item", cartId, itemId)
 	itemIdInt, err := strconv.Atoi(itemId)
 	if err != nil {
 		return e.String(http.StatusBadRequest, "Invalid item id")

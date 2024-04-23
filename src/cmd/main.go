@@ -11,7 +11,6 @@ import (
 	"github.com/gorilla/sessions"
 	"github.com/labstack/echo-contrib/session"
 	"github.com/labstack/echo/v4"
-	"github.com/labstack/echo/v4/middleware"
 )
 
 func main() {
@@ -19,23 +18,27 @@ func main() {
 
 	sessionService := service.NewInMemorySessionService()
 
-	locationRepo := repository.NewLocationRepository(cfg.BackendURL)
+	locationRepo := repository.NewLocationRepository(cfg.BackendURL, cfg.APIKey)
 	locationService := service.NewLocationService(locationRepo)
 	locationController := controller.NewLocationController(locationService, sessionService)
 
-	authRepo := repository.NewAuthRepository(cfg.BackendURL)
+	authRepo := repository.NewAuthRepository(cfg.BackendURL, cfg.APIKey)
 	authService := service.NewAuthService(authRepo, cfg.AccessTokenKey)
 	authController := controller.NewAuthController(authService)
 
-	cartRepo := repository.NewCartRepository(cfg.BackendURL)
+	cartRepo := repository.NewCartRepository(cfg.BackendURL, cfg.APIKey)
 	cartService := service.NewCartService(cartRepo)
 	cartController := controller.NewCartController(cartService)
 
 	orderController := controller.NewOrderController(locationService, sessionService, cartService)
 	profileController := controller.NewProfileController(authService, sessionService)
 
+	chatRepo := repository.NewChatRepository(cfg.BackendURL, cfg.APIKey)
+	chatService := service.NewChatService(chatRepo)
+	chatController := controller.NewChatController(chatService)
+
 	e := echo.New()
-	e.Use(middleware.Logger())
+	//e.Use(middleware.Logger())
 	e.Static("/static", "static")
 	e.Use(session.Middleware(sessions.NewCookieStore([]byte(cfg.SessionKey))))
 	e.Use(myMiddleware.NewJWTMiddleware(cfg.AccessTokenKey).Middleware)
@@ -58,6 +61,9 @@ func main() {
 
 	e.GET("/cart", cartController.GetCartPage)
 	e.DELETE("/cart/:cartId/items/:itemId", cartController.DeleteCartItem)
+
+	e.GET("/chat", chatController.GetChatPage)
+	e.POST("/chat", chatController.SendChat)
 
 	e.GET("/profile", profileController.GetProfilePage)
 

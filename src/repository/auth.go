@@ -21,16 +21,19 @@ type AuthRepository interface {
 
 type authRepository struct {
 	backendURL string
+	apiKey     string
 }
 
-func NewAuthRepository(backendURL string) AuthRepository {
+func NewAuthRepository(backendURL string, apiKey string) AuthRepository {
 	return &authRepository{
 		backendURL: backendURL,
+		apiKey:     apiKey,
 	}
 }
 
 func (r *authRepository) GetUserInfo(userId string) (*entity.User, error) {
 	req, _ := http.NewRequest("GET", r.backendURL+"/users/"+userId, nil)
+	req.Header.Set("X-API-KEY", r.apiKey)
 	resp, err := http.DefaultClient.Do(req)
 	if err != nil {
 		log.Println("auth repository get /users/"+userId+" error", err)
@@ -65,7 +68,14 @@ func (r *authRepository) Login(attemptId, email, code string) (*entity.User, err
 		RequestAt: &now,
 	}
 	reqBody, _ := json.Marshal(req)
-	resp, err := http.Post(r.backendURL+"/auth/login", "application/json", bytes.NewBuffer(reqBody))
+	httpReq, err := http.NewRequest("POST", r.backendURL+"/auth/login", bytes.NewBuffer(reqBody))
+	if err != nil {
+		log.Println("auth repository post /auth/login error", err)
+		return nil, err
+	}
+	httpReq.Header.Set("X-API-KEY", r.apiKey)
+	httpReq.Header.Set("Content-Type", "application/json")
+	resp, err := http.DefaultClient.Do(httpReq)
 	if err != nil {
 		log.Println("auth repository post /auth/login error", err)
 		return nil, err
@@ -96,7 +106,14 @@ func (r *authRepository) LoginAttempt(email, password string) (*entity.LoginAtte
 		Password: password,
 	}
 	reqBody, _ := json.Marshal(req)
-	resp, err := http.Post(r.backendURL+"/auth/login-attempt", "application/json", bytes.NewBuffer(reqBody))
+	httpReq, err := http.NewRequest("POST", r.backendURL+"/auth/login-attempt", bytes.NewBuffer(reqBody))
+	if err != nil {
+		log.Println("auth repository post /auth/login-attempt error", err)
+		return nil, err
+	}
+	httpReq.Header.Set("X-API-KEY", r.apiKey)
+	httpReq.Header.Set("Content-Type", "application/json")
+	resp, err := http.DefaultClient.Do(httpReq)
 	if err != nil {
 		log.Println("auth repository post /auth/login-attempt error", err)
 		return nil, err
@@ -130,7 +147,15 @@ func (r *authRepository) Register(attemptId, email, code string) (*entity.User, 
 		RequestAt: &now,
 	}
 	reqBody, _ := json.Marshal(req)
-	resp, err := http.Post(r.backendURL+"/auth/register", "application/json", bytes.NewBuffer(reqBody))
+
+	httpReq, err := http.NewRequest("POST", r.backendURL+"/auth/register", bytes.NewBuffer(reqBody))
+	if err != nil {
+		log.Println("auth repository post /auth/register error", err)
+		return nil, err
+	}
+	httpReq.Header.Set("X-API-KEY", r.apiKey)
+	httpReq.Header.Set("Content-Type", "application/json")
+	resp, err := http.DefaultClient.Do(httpReq)
 	if err != nil {
 		log.Println("auth repository post /auth/register error", err)
 		return nil, err
@@ -162,7 +187,18 @@ func (r *authRepository) RegisterAttempt(name, email, password string) (*entity.
 		Password: password,
 	}
 	reqBody, _ := json.Marshal(req)
-	resp, err := http.Post(r.backendURL+"/auth/register-attempt", "application/json", bytes.NewBuffer(reqBody))
+	httpReq, err := http.NewRequest("POST", r.backendURL+"/auth/register-attempt", bytes.NewBuffer(reqBody))
+	if err != nil {
+		log.Println("auth repository post /auth/register-attempt error", err)
+		return nil, err
+	}
+	httpReq.Header.Set("X-API-KEY", r.apiKey)
+	httpReq.Header.Set("Content-Type", "application/json")
+	resp, err := http.DefaultClient.Do(httpReq)
+	if err != nil {
+		log.Println("auth repository post /auth/register-attempt error", err)
+		return nil, err
+	}
 	if err != nil {
 		log.Println("auth repository post /auth/register-attempt error", err)
 		return nil, err

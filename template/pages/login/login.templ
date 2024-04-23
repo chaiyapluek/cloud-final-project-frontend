@@ -6,7 +6,10 @@ import "dev.chaiyapluek.cloud.final.frontend/template/component/button"
 
 templ LoginCode(attemptId string, email string){
 <form
+    hx-push-url="false"
+    hx-history="false"
     hx-post="/login"
+    hx-swap="delete"
     hx-target-error="#error-message"
     hx-on::before-request="loadding(event)"
     class="mt-2 w-5/6 flex flex-col justify-center"
@@ -32,7 +35,9 @@ templ LoginAttempt(){
                 hx-ext="response-targets"
                 class="flex flex-col justify-center items-center">
                 <h1 class="text-2xl text-center font-medium">Login</h1>
-                <form 
+                <form
+                    hx-push-url="false"
+                    hx-history="false"
                     hx-post="/login-attempt"
                     hx-swap="outerHTML"
                     hx-target-error="#error-message"

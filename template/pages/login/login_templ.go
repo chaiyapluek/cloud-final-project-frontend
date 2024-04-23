@@ -27,7 +27,7 @@ func LoginCode(attemptId string, email string) templ.Component {
 			templ_7745c5c3_Var1 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<form hx-post=\"/login\" hx-target-error=\"#error-message\" hx-on::before-request=\"loadding(event)\" class=\"mt-2 w-5/6 flex flex-col justify-center\"><label x-data=\"timer(120)\" class=\"text-sm\">Enter login code sent to the email in <span x-text=\"current\"></span> seconds</label> <input class=\"h-10 p-2 text-lg border border-black border-solid rounded\" type=\"number\" max=\"999999\" required name=\"code\" id=\"code\" inputmode=\"numeric\" placeholder=\"Enter code...\"> <input type=\"hidden\" name=\"attemptId\" value=\"")
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<form hx-push-url=\"false\" hx-history=\"false\" hx-post=\"/login\" hx-swap=\"delete\" hx-target-error=\"#error-message\" hx-on::before-request=\"loadding(event)\" class=\"mt-2 w-5/6 flex flex-col justify-center\"><label x-data=\"timer(120)\" class=\"text-sm\">Enter login code sent to the email in <span x-text=\"current\"></span> seconds</label> <input class=\"h-10 p-2 text-lg border border-black border-solid rounded\" type=\"number\" max=\"999999\" required name=\"code\" id=\"code\" inputmode=\"numeric\" placeholder=\"Enter code...\"> <input type=\"hidden\" name=\"attemptId\" value=\"")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -85,7 +85,7 @@ func LoginAttempt() templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(" <div class=\"h-[55%] flex flex-col-reverse\"><div hx-ext=\"response-targets\" class=\"flex flex-col justify-center items-center\"><h1 class=\"text-2xl text-center font-medium\">Login</h1><form hx-post=\"/login-attempt\" hx-swap=\"outerHTML\" hx-target-error=\"#error-message\" hx-on::before-request=\"loadding(event)\" class=\"mt-2 w-5/6 flex flex-col justify-center\"><input class=\"h-10 p-2 text-lg border border-black border-solid rounded\" type=\"email\" required name=\"email\" placeholder=\"Enter you email...\"> <input class=\"h-10 p-2 mt-2 text-lg border border-black border-solid rounded\" type=\"password\" required name=\"password\" placeholder=\"Enter you password...\"><div id=\"error-message\"></div>")
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(" <div class=\"h-[55%] flex flex-col-reverse\"><div hx-ext=\"response-targets\" class=\"flex flex-col justify-center items-center\"><h1 class=\"text-2xl text-center font-medium\">Login</h1><form hx-push-url=\"false\" hx-history=\"false\" hx-post=\"/login-attempt\" hx-swap=\"outerHTML\" hx-target-error=\"#error-message\" hx-on::before-request=\"loadding(event)\" class=\"mt-2 w-5/6 flex flex-col justify-center\"><input class=\"h-10 p-2 text-lg border border-black border-solid rounded\" type=\"email\" required name=\"email\" placeholder=\"Enter you email...\"> <input class=\"h-10 p-2 mt-2 text-lg border border-black border-solid rounded\" type=\"password\" required name=\"password\" placeholder=\"Enter you password...\"><div id=\"error-message\"></div>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}

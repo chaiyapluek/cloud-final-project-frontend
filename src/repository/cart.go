@@ -19,18 +19,26 @@ type CartPepository interface {
 }
 
 type cartRepository struct {
-	BackendURL string
+	backendURL string
+	apiKey     string
 }
 
-func NewCartRepository(backendURL string) CartPepository {
+func NewCartRepository(backendURL string, apiKey string) CartPepository {
 	return &cartRepository{
-		BackendURL: backendURL,
+		backendURL: backendURL,
+		apiKey:     apiKey,
 	}
 }
 
 func (r *cartRepository) GetUserCart(userId string, locationId string) (*entity.Cart, error) {
 	endpoint := "/users/" + userId + "/carts?locationId=" + locationId
-	resp, err := http.Get(r.BackendURL + endpoint)
+	httpReq, err := http.NewRequest("GET", r.backendURL+endpoint, nil)
+	if err != nil {
+		log.Println("cart repository get "+endpoint+" error", err)
+		return nil, err
+	}
+	httpReq.Header.Set("X-API-KEY", r.apiKey)
+	resp, err := http.DefaultClient.Do(httpReq)
 	if err != nil {
 		log.Println("cart repository get "+endpoint+" error", err)
 		return nil, err
@@ -62,8 +70,15 @@ func (r *cartRepository) AddCartItem(cartId string, item *entity.AddCartItemRequ
 		log.Println("cart repository add item to cart marshal error", err)
 		return nil, err
 	}
+	httpReq, err := http.NewRequest("POST", r.backendURL+endpoint, bytes.NewBuffer(reqBody))
+	if err != nil {
+		log.Println("cart repository add item to cart create request error", err)
+		return nil, err
+	}
+	httpReq.Header.Set("Content-Type", "application/json")
+	httpReq.Header.Set("X-API-KEY", r.apiKey)
 
-	resp, err := http.Post(r.BackendURL+endpoint, "application/json", bytes.NewBuffer(reqBody))
+	resp, err := http.DefaultClient.Do(httpReq)
 	if err != nil {
 		log.Println("cart repository add item to cart error", err)
 		return nil, err
@@ -90,12 +105,12 @@ func (r *cartRepository) AddCartItem(cartId string, item *entity.AddCartItemRequ
 
 func (r *cartRepository) DeleteCartItem(cartId string, itemId int) (*entity.DeleteCartItem, error) {
 	endpoint := fmt.Sprintf("/carts/%s/items/%d", cartId, itemId)
-	req, err := http.NewRequest(http.MethodDelete, r.BackendURL+endpoint, nil)
+	req, err := http.NewRequest(http.MethodDelete, r.backendURL+endpoint, nil)
 	if err != nil {
 		log.Println("cart repository delete item from cart create request error", err)
 		return nil, err
 	}
-
+	req.Header.Set("X-API-KEY", r.apiKey)
 	resp, err := http.DefaultClient.Do(req)
 	if err != nil {
 		log.Println("cart repository delete item from cart error", err)
@@ -130,7 +145,15 @@ func (r *cartRepository) Checkout(req *entity.CheckoutRequest) error {
 		return err
 	}
 
-	resp, err := http.Post(r.BackendURL+endpoint, "application/json", bytes.NewBuffer(reqBody))
+	httpReq, err := http.NewRequest(http.MethodPost, r.backendURL+endpoint, bytes.NewBuffer(reqBody))
+	if err != nil {
+		log.Println("cart repository checkout create request error", err)
+		return err
+	}
+	httpReq.Header.Set("Content-Type", "application/json")
+	httpReq.Header.Set("X-API-KEY", r.apiKey)
+
+	resp, err := http.DefaultClient.Do(httpReq)
 	if err != nil {
 		log.Println("cart repository checkout error", err)
 		return err

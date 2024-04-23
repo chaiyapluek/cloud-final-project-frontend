@@ -1,8 +1,6 @@
 package controller
 
 import (
-	"log"
-
 	"dev.chaiyapluek.cloud.final.frontend/src/service"
 	"dev.chaiyapluek.cloud.final.frontend/template/pages/profile"
 	"github.com/labstack/echo-contrib/session"
@@ -36,10 +34,8 @@ func (c *profileController) GetProfilePage(e echo.Context) error {
 	if detail != nil {
 		locationId = detail.CurrentLocation
 	}
-
 	userId := e.Get("userId").(string)
 	name, err := c.authService.GetUserInfo(userId)
-	log.Println(userId)
 	if err != nil {
 		return profile.Profile(false, "", "").Render(e.Request().Context(), e.Response().Writer)
 	}

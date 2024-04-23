@@ -11,6 +11,7 @@ type Config struct {
 	Host           string
 	Port           string
 	AccessTokenKey string
+	APIKey         string
 	SessionKey     string
 	BackendURL     string
 }
@@ -51,6 +52,8 @@ func LoadEnv() *Config {
 	if cfg.BackendURL == "" {
 		log.Fatal("backend url is required")
 	}
+
+	cfg.APIKey = os.Getenv("API_KEY")
 
 	return cfg
 }

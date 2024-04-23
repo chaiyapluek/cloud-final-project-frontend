@@ -17,16 +17,24 @@ type LocationRepository interface {
 
 type locationRepository struct {
 	backendURL string
+	apiKey     string
 }
 
-func NewLocationRepository(backendURL string) LocationRepository {
+func NewLocationRepository(backendURL string, apiKey string) LocationRepository {
 	return &locationRepository{
 		backendURL: backendURL,
+		apiKey:     apiKey,
 	}
 }
 
 func (r *locationRepository) GetLocations() ([]*entity.Location, error) {
-	resp, err := http.Get(r.backendURL + "/locations")
+	httpReq, err := http.NewRequest("GET", r.backendURL+"/locations", nil)
+	if err != nil {
+		log.Println("location repository get /locations error", err)
+		return nil, err
+	}
+	httpReq.Header.Set("X-API-KEY", r.apiKey)
+	resp, err := http.DefaultClient.Do(httpReq)
 	if err != nil {
 		log.Println("location repository get /locations error", err)
 		return nil, err
@@ -52,17 +60,23 @@ func (r *locationRepository) GetLocations() ([]*entity.Location, error) {
 }
 
 func (r *locationRepository) GetLocationByID(id string) (*entity.Location, error) {
-	resp, err := http.Get(r.backendURL + "/locations/" + id + "/menus")
+	httpReq, err := http.NewRequest("GET", r.backendURL+"/locations/"+id+"/menus", nil)
 	if err != nil {
-		log.Println("location repository get /locations/:id error", err)
+		log.Println("location repository get /locations/:id/menus error", err)
+		return nil, err
+	}
+	httpReq.Header.Set("X-API-KEY", r.apiKey)
+	resp, err := http.DefaultClient.Do(httpReq)
+	if err != nil {
+		log.Println("location repository get /locations/:id/menus error", err)
 		return nil, err
 	}
 
 	if resp.StatusCode > 299 {
-		log.Println("location repository get /locations/:id status code error", resp.StatusCode)
+		log.Println("location repository get /locations/:id/menus status code error", resp.StatusCode)
 		var errorResp entity.ErrorResponse
 		if err := json.NewDecoder(resp.Body).Decode(&errorResp); err != nil {
-			log.Println("location repository get /locations/:id decode ErrorResponse error", err)
+			log.Println("location repository get /locations/:id/menus decode ErrorResponse error", err)
 			return nil, err
 		}
 		return nil, errors.New(errorResp.Message)
@@ -70,7 +84,7 @@ func (r *locationRepository) GetLocationByID(id string) (*entity.Location, error
 
 	var location entity.LocationResponse
 	if err := json.NewDecoder(resp.Body).Decode(&location); err != nil {
-		log.Println("location repository get /locations/:id decode Location error", err)
+		log.Println("location repository get /locations/:id/menus decode Location error", err)
 		return nil, err
 	}
 
@@ -78,7 +92,13 @@ func (r *locationRepository) GetLocationByID(id string) (*entity.Location, error
 }
 
 func (r *locationRepository) GetLocationItems(locationId, menuId string) (*entity.Menu, error) {
-	resp, err := http.Get(r.backendURL + "/locations/" + locationId + "/menus/" + menuId)
+	httpReq, err := http.NewRequest("GET", r.backendURL+"/locations/"+locationId+"/menus/"+menuId, nil)
+	if err != nil {
+		log.Println("location repository get /locations/:locationId/menus/:menuId error", err)
+		return nil, err
+	}
+	httpReq.Header.Set("X-API-KEY", r.apiKey)
+	resp, err := http.DefaultClient.Do(httpReq)
 	if err != nil {
 		log.Println("location repository get /locations/:locationId/menus/:menuId error", err)
 		return nil, err

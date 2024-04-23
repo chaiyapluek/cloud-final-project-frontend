@@ -1,7 +1,6 @@
 package service
 
 import (
-	"log"
 	"time"
 
 	"dev.chaiyapluek.cloud.final.frontend/src/entity"
@@ -39,7 +38,6 @@ func (s *authService) GetUserInfo(userId string) (string, error) {
 }
 
 func (s *authService) generateToken(userId string) (string, error) {
-	log.Println("generate token for", userId)
 	payload := entity.AccessToken{
 		UserId: userId,
 		RegisteredClaims: &jwt.RegisteredClaims{

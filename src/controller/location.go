@@ -113,7 +113,6 @@ func (c *LocationController) GetLocationItems(e echo.Context) error {
 		}
 	}
 	orderProp.TotalPrice = price
-
 	isComplete := true
 	for _, g := range orderProp.Steps {
 		formVals, ok := preference[g.FormName].([]interface{})
