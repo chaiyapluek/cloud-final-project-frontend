@@ -1,6 +1,7 @@
 package service
 
 import (
+	"encoding/base64"
 	"encoding/json"
 	"strings"
 
@@ -36,31 +37,39 @@ func isEmptyTypeOneMessage(content string) bool {
 
 	q := strings.Split(query, "&")
 	for _, pair := range q {
-		p := strings.Split(pair, "=")
-		if p[0] != "preference=" {
+		idx := strings.Index(pair, "=")
+		key := pair[:idx]
+		val := pair[idx+1:]
+		if key != "preference" {
 			continue
 		}
 
-		if p[1] == "" {
+		if val == "" {
 			return true
 		}
-
 		m := map[string][]string{}
-		json.Unmarshal([]byte(p[1]), &m)
+		b, err := base64.StdEncoding.DecodeString(val)
+		if err != nil {
+			return true
+		}
+		err = json.Unmarshal(b, &m)
+		if err != nil {
+			return true
+		}
 		if len(m) == 0 {
 			return true
 		}
 
+		isEmpty := true
 		for _, v := range m {
-			if len(v) == 0 {
+			if len(v) != 0 {
+				isEmpty = false
 				break
 			}
 		}
-
-		return true
+		return isEmpty
 	}
-
-	return false
+	return true
 }
 
 func (s *chatService) GetChat(userId, locationId string) ([]*chat.Message, error) {
